@@ -25,6 +25,7 @@ def helmDeploy(Map args) {
     //configure helm client and confirm tiller process is installed
     helmConfig()
     println args.dry_run
+    println args
     if (args.dry_run) {
       println "dryrun1"
     }
