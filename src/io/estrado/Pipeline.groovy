@@ -24,6 +24,19 @@ def helmConfig() {
 def helmDeploy(Map args) {
     //configure helm client and confirm tiller process is installed
     helmConfig()
+    println args.dry_run
+    if (args.dry_run) {
+      println "dryrun1"
+    }
+    if (args.dry_run == 'true') {
+      println "dryrun2"
+    }
+    if (args.dry_run == true) {
+      println "dryrun2.5"
+    }
+    if (args.hasProperty('dry_run')) {
+      println "dryrun3"
+    }
 
     if (args.dry_run) {
         println "Running dry-run deployment"
