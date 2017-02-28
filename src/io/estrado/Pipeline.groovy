@@ -33,8 +33,11 @@ def helmDeploy(Map args) {
         println "Running deployment"
         sh "helm dependency update ${args.chart_dir}"
         def String release_overrides = ""
+        println args.hasProperty('set')
+        println args.set instanceof Map
         if (args.hasProperty('set') && args.set instanceof Map) {
-          release_overrides = getHelmReleaseOverrides(args.set)
+          releas_overrides = getHelmReleaseOverrides(args.set)
+          println release_overrides
         }
         sh "helm upgrade --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.name}"
 
@@ -157,4 +160,15 @@ def getMapValues(Map map=[:]) {
     }
 
     return map_values
+}
+
+@NonCPS
+def getHelmReleaseOverrides(Map map=[:]) {
+    // jenkins and workflow restriction force this function instead of map.each(): https://issues.jenkins-ci.org/browse/JENKINS-27421
+    def options = ""
+    map.each { key, value ->
+        options += "$key=$value,"
+    }
+
+    return options
 }
