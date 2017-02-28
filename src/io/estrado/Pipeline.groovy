@@ -33,11 +33,8 @@ def helmDeploy(Map args) {
         println "Running deployment"
         sh "helm dependency update ${args.chart_dir}"
         def String release_overrides = ""
-        println args.hasProperty('set')
-        println args.set instanceof Map
-        if (args.hasProperty('set') && args.set instanceof Map) {
-          releas_overrides = getHelmReleaseOverrides(args.set)
-          println release_overrides
+        if (args.set) {
+          release_overrides = getHelmReleaseOverrides(args.set)
         }
         sh "helm upgrade --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.name}"
 
