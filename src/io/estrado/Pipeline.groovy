@@ -36,7 +36,7 @@ def helmDeploy(Map args) {
         if (args.hasProperty('set') && args.set instanceof Map) {
           release_overrides = getHelmReleaseOverrides(args.set)
         }
-        sh "helm upgrade --install ${args.name} ${args.chart_dir} " + release_overrides ? "--set ${release_overrides}" : "" + "--namespace=${args.name}"
+        sh "helm upgrade --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.name}"
 
         echo "Application ${args.name} successfully deployed. Use helm status ${args.name} to check"
     }
