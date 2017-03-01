@@ -24,6 +24,10 @@ def helmConfig() {
 def helmDeploy(Map args) {
     //configure helm client and confirm tiller process is installed
     helmConfig()
+    def String release_overrides = ""
+    if (args.set) {
+      release_overrides = getHelmReleaseOverrides(args.set)
+    }
 
     if (args.dry_run) {
         println "Running dry-run deployment"
@@ -31,11 +35,8 @@ def helmDeploy(Map args) {
         sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.namespace}"
     } else {
         println "Running deployment"
+
         sh "helm dependency update ${args.chart_dir}"
-        def String release_overrides = ""
-        if (args.set) {
-          release_overrides = getHelmReleaseOverrides(args.set)
-        }
         sh "helm upgrade --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.namespace}"
 
         echo "Application ${args.name} successfully deployed. Use helm status ${args.name} to check"
