@@ -28,7 +28,7 @@ def helmDeploy(Map args) {
     if (args.dry_run) {
         println "Running dry-run deployment"
 
-        sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} --set ImageTag=${args.version_tag},Replicas=${args.replicas},Cpu=${args.cpu},Memory=${args.memory} --namespace=${args.name}"
+        sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.namespace}"
     } else {
         println "Running deployment"
         sh "helm dependency update ${args.chart_dir}"
@@ -36,7 +36,7 @@ def helmDeploy(Map args) {
         if (args.set) {
           release_overrides = getHelmReleaseOverrides(args.set)
         }
-        sh "helm upgrade --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.name}"
+        sh "helm upgrade --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.namespace}"
 
         echo "Application ${args.name} successfully deployed. Use helm status ${args.name} to check"
     }
