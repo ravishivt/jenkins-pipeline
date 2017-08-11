@@ -3,20 +3,23 @@ package io.estrado;
 
 def kubectlTest() {
     // Test that kubectl can correctly communication with the Kubernetes API
-    echo "running kubectl test"
+    println "checking kubectl connnectivity to the API"
     sh "kubectl get nodes"
 
 }
 
 def helmLint(String chart_dir) {
     // lint helm chart
+    println "running helm lint ${chart_dir}"
     sh "helm lint ${chart_dir}"
 
 }
 
 def helmConfig() {
     //setup helm connectivity to Kubernetes API and Tiller
+    println "initiliazing helm client"
     sh "helm init"
+    println "checking client/server version"
     sh "helm version"
 }
 
@@ -29,22 +32,57 @@ def helmDeploy(Map args) {
       release_overrides = getHelmReleaseOverrides(args.set)
     }
 
+    def String namespace
+
+    // If namespace isn't parsed into the function set the namespace to the name
+    if (args.namespace == null) {
+        namespace = args.name
+    } else {
+        namespace = args.namespace
+    }
+
     if (args.dry_run) {
         println "Running dry-run deployment"
 
+<<<<<<< HEAD
         sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.namespace}"
     } else {
         println "Running deployment"
 
         sh "helm dependency update ${args.chart_dir}"
         sh "helm upgrade --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides}" : "") + " --namespace=${args.namespace}"
+=======
+        sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname} --namespace=${namespace}"
+    } else {
+        println "Running deployment"
+
+        // reimplement --wait once it works reliable
+        sh "helm upgrade --install ${args.name} ${args.chart_dir} --set imageTag=${args.version_tag},replicas=${args.replicas},cpu=${args.cpu},memory=${args.memory},ingress.hostname=${args.hostname} --namespace=${namespace}"
+
+        // sleeping until --wait works reliably
+        sleep(20)
+>>>>>>> upstream/master
 
         echo "Application ${args.name} successfully deployed. Use helm status ${args.name} to check"
     }
 }
 
+def helmDelete(Map args) {
+        println "Running helm delete ${args.name}"
+
+        sh "helm delete ${args.name}"
+}
+
+def helmTest(Map args) {
+    println "Running Helm test"
+
+    sh "helm test ${args.name} --cleanup"
+}
+
 def gitEnvVars() {
     // create git envvars
+    println "Setting envvars to tag container"
+
     sh 'git rev-parse HEAD > git_commit_id.txt'
     try {
         env.GIT_COMMIT_ID = readFile('git_commit_id.txt').trim()
@@ -83,6 +121,7 @@ def containerBuildPub(Map args) {
 
 def getContainerTags(config, Map tags = [:]) {
 
+    println "getting list of tags for container"
     def String commit_tag
     def String version_tag
 
@@ -133,6 +172,7 @@ def getContainerTags(config, Map tags = [:]) {
 
 def getContainerRepoAcct(config) {
 
+    println "setting container registry creds according to Jenkinsfile.json"
     def String acct
 
     if (env.BRANCH_NAME == 'master') {
