@@ -198,3 +198,18 @@ def getHelmReleaseOverrides(Map map=[:]) {
 
     return options
 }
+
+def String getDomainName(String url) throws URISyntaxException {
+    URI uri = new URI(url);
+    String domain = uri.getHost();
+    return domain.startsWith("www.") ? domain.substring(4) : domain;
+}
+
+def String getSubDomainName(String domain) {
+    return domain.substring(domain.indexOf('.') + 1);
+}
+
+// Used to get the subdomain Jenkins is hosted on for new ingress resources.
+def String getSubDomainNameFromURL(String url) {
+    return getSubDomainName(getDomainName(url));
+}
