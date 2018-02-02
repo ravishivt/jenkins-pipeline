@@ -44,7 +44,7 @@ def helmDeploy(Map args) {
     if (args.dry_run) {
         println "Running dry-run deployment"
 
-        sh "helm upgrade --dry-run --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides} " : " ") + (args.timeout ? "--timeout ${args.timeout} " : " ") + " --namespace ${namespace}"
+        sh "helm upgrade --dry-run" + (args.debug ? "--debug " : " ") + " --install ${args.name} ${args.chart_dir} " + (release_overrides ? "--set ${release_overrides} " : " ") + (args.timeout ? "--timeout ${args.timeout} " : " ") + " --namespace ${namespace}"
     } else {
         println "Running deployment"
 
